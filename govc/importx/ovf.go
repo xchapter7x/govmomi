@@ -62,13 +62,24 @@ func (cmd *ovfx) Usage() string {
 	return "PATH_TO_OVF"
 }
 
+func GetArchive(fpath string) (archive Archive) {
+
+	if strings.HasPrefix(fpath, "http") {
+		archive = &HTTPFileArchive{path: fpath}
+
+	} else {
+		archive = &FileArchive{path: fpath}
+	}
+	return
+}
+
 func (cmd *ovfx) Run(f *flag.FlagSet) error {
 	fpath, err := cmd.Prepare(f)
 	if err != nil {
 		return err
 	}
 
-	cmd.Archive = &FileArchive{fpath}
+	cmd.Archive = GetArchive(fpath)
 
 	moref, err := cmd.Import(fpath)
 	if err != nil {

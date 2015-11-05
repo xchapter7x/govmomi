@@ -38,7 +38,6 @@ import (
 	_ "github.com/vmware/govmomi/govc/host/firewall"
 	_ "github.com/vmware/govmomi/govc/host/portgroup"
 	_ "github.com/vmware/govmomi/govc/host/vswitch"
-	_ "github.com/vmware/govmomi/govc/importx"
 	_ "github.com/vmware/govmomi/govc/license"
 	_ "github.com/vmware/govmomi/govc/logs"
 	_ "github.com/vmware/govmomi/govc/ls"
@@ -49,6 +48,7 @@ import (
 	_ "github.com/vmware/govmomi/govc/vm/disk"
 	_ "github.com/vmware/govmomi/govc/vm/guest"
 	_ "github.com/vmware/govmomi/govc/vm/network"
+	_ "github.com/xchapter7x/govmomi/govc/importx"
 )
 
 func main() {

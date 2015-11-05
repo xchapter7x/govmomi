@@ -22,9 +22,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
+	"sync"
 
 	"github.com/vmware/govmomi/ovf"
 )
@@ -138,4 +140,38 @@ func (t *FileArchive) Open(name string) (io.ReadCloser, int64, error) {
 	}
 
 	return f, s.Size(), nil
+}
+
+type HTTPFileArchive struct {
+	path   string
+	once   sync.Once
+	Client clientDoer
+}
+
+type clientDoer interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
+func (s *HTTPFileArchive) Open(name string) (contents io.ReadCloser, contentLength int64, err error) {
+	var (
+		req *http.Request
+		res *http.Response
+	)
+	dir := os.TempDir()
+	localFilename := fmt.Sprintf("%s/%s", dir, path.Base(name))
+	s.once.Do(func() {
+		if s.Client == nil {
+			s.Client = new(http.Client)
+		}
+
+		if req, err = http.NewRequest("GET", name, nil); err == nil {
+
+			if res, err = s.Client.Do(req); err == nil {
+				out, _ := os.Create(localFilename)
+				io.Copy(out, res.Body)
+			}
+		}
+	})
+	fileArchive := &FileArchive{path: localFilename}
+	return fileArchive.Open(localFilename)
 }
